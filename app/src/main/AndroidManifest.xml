@@ -3,6 +3,7 @@
     package="com.ieg.ders3">
 
     <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
 
     <application
         android:allowBackup="true"
@@ -19,8 +20,7 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".SMSReader">
+        <receiver android:name=".SMSReader">
             <intent-filter>
                 <action android:name="android.provider.Telephony.SMS_RECEIVED" />
             </intent-filter>
