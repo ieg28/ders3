@@ -1,29 +1,41 @@
 package com.ieg.ders3;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ImageButton.OnClickListener {
 
     private static final String TAG = "My MainActivity";
 
-    private TextView textView;
+    private ImageButton buttonList;
+    private ImageButton buttonSend;
+
+    private FrameLayout container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        textView = (TextView) findViewById(R.id.txt_label);
+        buttonList = (ImageButton) findViewById(R.id.btn_list_msg);
+        buttonSend = (ImageButton) findViewById(R.id.btn_send_msg);
+
+        container = (FrameLayout) findViewById(R.id.container);
+
+        buttonList.setOnClickListener(this);
+        buttonSend.setOnClickListener(this);
     }
 
     @Override
@@ -50,10 +62,25 @@ public class MainActivity extends AppCompatActivity {
                 if (s.length >= 2) {
                     Helper.ShowNoti(MainActivity.this, s[0], s[1]);
                 }
-
-                textView.setText(message);
             }
         }
 
     };
+
+    @Override
+    public void onClick(View view) {
+        FragmentManager manager = getSupportFragmentManager();
+        FragmentTransaction transaction = manager.beginTransaction();
+
+        switch (view.getId()) {
+            case R.id.btn_list_msg: {
+                transaction.replace(R.id.container, new ListMsgFragment()).commit();
+                break;
+            }
+            case R.id.btn_send_msg: {
+                transaction.replace(R.id.container, new SendMsgFragment()).commit();
+                break;
+            }
+        }
+    }
 }
