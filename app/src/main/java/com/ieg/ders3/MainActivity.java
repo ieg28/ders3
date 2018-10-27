@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
@@ -15,14 +16,34 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity implements ImageButton.OnClickListener {
 
     private static final String TAG = "My MainActivity";
+
+    public enum Page {LIST, SEND}
+
+    public class SMSModel {
+        String title;
+        String body;
+
+        public SMSModel(String title, String body) {
+            this.title = title;
+            this.body = body;
+        }
+    }
+
+    public static List<SMSModel> smsModelList = new ArrayList<>();
 
     private ImageButton buttonList;
     private ImageButton buttonSend;
 
     private FrameLayout container;
+
+    private SendMsgFragment sendMsgFragment;
+    private ListMsgFragment listMsgFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +82,35 @@ public class MainActivity extends AppCompatActivity implements ImageButton.OnCli
                 String[] s = message.split("\n");
                 if (s.length >= 2) {
                     Helper.ShowNoti(MainActivity.this, s[0], s[1]);
+                    smsModelList.add(new SMSModel(s[0], s[1]));
                 }
             }
         }
 
     };
+
+    private Fragment selectPage(Page page) {
+        Fragment selectedFragment = null;
+
+        switch (page) {
+            case LIST: {
+                if (listMsgFragment == null)
+                    listMsgFragment = new ListMsgFragment();
+
+                selectedFragment = listMsgFragment;
+                break;
+            }
+            case SEND: {
+                if (sendMsgFragment == null)
+                    sendMsgFragment = new SendMsgFragment();
+
+                selectedFragment = sendMsgFragment;
+                break;
+            }
+        }
+
+        return selectedFragment;
+    }
 
     @Override
     public void onClick(View view) {
@@ -74,11 +119,11 @@ public class MainActivity extends AppCompatActivity implements ImageButton.OnCli
 
         switch (view.getId()) {
             case R.id.btn_list_msg: {
-                transaction.replace(R.id.container, new ListMsgFragment()).commit();
+                transaction.replace(R.id.container, selectPage(Page.LIST)).commit();
                 break;
             }
             case R.id.btn_send_msg: {
-                transaction.replace(R.id.container, new SendMsgFragment()).commit();
+                transaction.replace(R.id.container, selectPage(Page.SEND)).commit();
                 break;
             }
         }
