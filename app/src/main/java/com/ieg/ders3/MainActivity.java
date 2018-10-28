@@ -15,6 +15,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,17 +26,7 @@ public class MainActivity extends AppCompatActivity implements ImageButton.OnCli
 
     public enum Page {LIST, SEND}
 
-    public class SMSModel {
-        String title;
-        String body;
-
-        public SMSModel(String title, String body) {
-            this.title = title;
-            this.body = body;
-        }
-    }
-
-    public static List<SMSModel> smsModelList = new ArrayList<>();
+    public static DataBaseController baseController = null;
 
     private ImageButton buttonList;
     private ImageButton buttonSend;
@@ -62,6 +53,15 @@ public class MainActivity extends AppCompatActivity implements ImageButton.OnCli
     @Override
     protected void onResume() {
         super.onResume();
+        if (baseController == null) {
+            try {
+                baseController = new DataBaseController(MainActivity.this);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }
+
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver, new IntentFilter(Helper.SMS_INTENT));
     }
 
@@ -82,11 +82,10 @@ public class MainActivity extends AppCompatActivity implements ImageButton.OnCli
                 String[] s = message.split("\n");
                 if (s.length >= 2) {
                     Helper.ShowNoti(MainActivity.this, s[0], s[1]);
-                    smsModelList.add(new SMSModel(s[0], s[1]));
+                    baseController.addSmsDB(new SMSModel(s[0], s[1]));
                 }
             }
         }
-
     };
 
     private Fragment selectPage(Page page) {

@@ -13,16 +13,19 @@ import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
 public class ListMsgFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+    private List<SMSModel> smsList = null;
+
     class SMSListAdapter extends BaseAdapter {
-        List<MainActivity.SMSModel> smsModelList;
+        List<SMSModel> smsModelList;
         Context context;
 
-        public SMSListAdapter(Context context, List<MainActivity.SMSModel> smsModelList) {
+        public SMSListAdapter(Context context, List<SMSModel> smsModelList) {
             this.context = context;
             this.smsModelList = smsModelList;
         }
@@ -33,7 +36,7 @@ public class ListMsgFragment extends Fragment implements SwipeRefreshLayout.OnRe
         }
 
         @Override
-        public MainActivity.SMSModel getItem(int i) {
+        public SMSModel getItem(int i) {
             return smsModelList.get(i);
         }
 
@@ -66,13 +69,22 @@ public class ListMsgFragment extends Fragment implements SwipeRefreshLayout.OnRe
         SwipeRefreshLayout refreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.lst_refresh);
 
         refreshLayout.setOnRefreshListener(this);
-        listView.setAdapter(new SMSListAdapter(getContext(), MainActivity.smsModelList));
+
+        smsList = MainActivity.baseController.getSmsDB();
+        if (smsList != null)
+            listView.setAdapter(new SMSListAdapter(getContext(), smsList));
+        else
+            Toast.makeText(getContext(), "SMS list null", Toast.LENGTH_LONG).show();
 
         return view;
     }
 
     @Override
     public void onRefresh() {
-        listView.setAdapter(new SMSListAdapter(getContext(), MainActivity.smsModelList));
+        smsList = MainActivity.baseController.getSmsDB();
+        if (smsList != null)
+            listView.setAdapter(new SMSListAdapter(getContext(), smsList));
+        else
+            Toast.makeText(getContext(), "SMS list null", Toast.LENGTH_LONG).show();
     }
 }
